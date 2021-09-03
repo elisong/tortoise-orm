@@ -1435,7 +1435,7 @@ class ValuesListQuery(FieldSelectQuery):
             self.query._use_indexes = []
             self.query = self.query.use_index(*self.use_indexes)
 
-    def __await__(self) -> Generator[Any, None, Optional[List[Tuple], Tuple, Any]]:
+    def __await__(self) -> Generator[Optional[List[Tuple], Tuple, Any]]:
         if self._db is None:
             self._db = self._choose_db()  # type: ignore
         self._make_query()
@@ -1550,7 +1550,7 @@ class ValuesQuery(FieldSelectQuery):
             self.query._use_indexes = []
             self.query = self.query.use_index(*self.use_indexes)
 
-    def __await__(self) -> Generator[Any, None, Optional[List[dict], dict]]:
+    def __await__(self) -> Generator[Optional[List[dict], dict]]:
         if self._db is None:
             self._db = self._choose_db()  # type: ignore
         self._make_query()

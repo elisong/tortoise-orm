@@ -962,7 +962,7 @@ class QuerySet(AwaitableQuery[MODEL]):
         for val in await self:
             yield val
 
-    async def _execute(self) -> Union[List[MODEL], MODEL]:
+    async def _execute(self) -> List[MODEL]:
         instance_list = await self._db.executor_class(
             model=self.model,
             db=self._db,
@@ -1435,7 +1435,7 @@ class ValuesListQuery(FieldSelectQuery):
             self.query._use_indexes = []
             self.query = self.query.use_index(*self.use_indexes)
 
-    def __await__(self) -> Generator[Any, None, List[Any]]:
+    def __await__(self) -> Generator[List[Any], Any, None]:
         if self._db is None:
             self._db = self._choose_db()  # type: ignore
         self._make_query()
@@ -1445,7 +1445,7 @@ class ValuesListQuery(FieldSelectQuery):
         for val in await self:
             yield val
 
-    async def _execute(self) -> Union[List[Any], Any]:
+    async def _execute(self) -> Union[List[Any], Any, None]:
         _, result = await self._db.execute_query(str(self.query))
         columns = [
             (key, self.resolve_to_python_value(self.model, name))
@@ -1453,10 +1453,10 @@ class ValuesListQuery(FieldSelectQuery):
         ]
         if self.flat:
             func = columns[0][1]
-            flatmap = lambda entry: func(entry["0"])  # noqa
+            def flatmap(entry): return func(entry["0"])  # noqa
             result = list(map(flatmap, result))
         else:
-            listmap = lambda entry: tuple(func(entry[column]) for column, func in columns)  # noqa
+            def listmap(entry): return tuple(func(entry[column]) for column, func in columns)  # noqa
             result = list(map(listmap, result))
 
         if self.single:
@@ -1550,7 +1550,7 @@ class ValuesQuery(FieldSelectQuery):
             self.query._use_indexes = []
             self.query = self.query.use_index(*self.use_indexes)
 
-    def __await__(self) -> Generator[Any, None, List[dict]]:
+    def __await__(self) -> Generator[List[dict], dict, None]:
         if self._db is None:
             self._db = self._choose_db()  # type: ignore
         self._make_query()
@@ -1560,7 +1560,7 @@ class ValuesQuery(FieldSelectQuery):
         for val in await self:
             yield val
 
-    async def _execute(self) -> Union[List[dict], dict]:
+    async def _execute(self) -> Union[List[dict], dict, None]:
         result = await self._db.execute_query_dict(str(self.query))
         columns = [
             val

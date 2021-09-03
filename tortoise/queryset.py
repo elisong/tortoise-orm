@@ -1435,7 +1435,7 @@ class ValuesListQuery(FieldSelectQuery):
             self.query._use_indexes = []
             self.query = self.query.use_index(*self.use_indexes)
 
-    def __await__(self) -> Generator[List[Any], Any, None]:
+    def __await__(self) -> Generator[Any, None, Optional[List[Tuple], Tuple, Any]]:
         if self._db is None:
             self._db = self._choose_db()  # type: ignore
         self._make_query()
@@ -1445,7 +1445,7 @@ class ValuesListQuery(FieldSelectQuery):
         for val in await self:
             yield val
 
-    async def _execute(self) -> Union[List[Any], Any, None]:
+    async def _execute(self) -> Optional[List[Tuple], Tuple, Any]:
         _, result = await self._db.execute_query(str(self.query))
         columns = [
             (key, self.resolve_to_python_value(self.model, name))
@@ -1556,7 +1556,7 @@ class ValuesQuery(FieldSelectQuery):
             self.query._use_indexes = []
             self.query = self.query.use_index(*self.use_indexes)
 
-    def __await__(self) -> Generator[List[dict], dict, None]:
+    def __await__(self) -> Generator[Any, None, Optional[List[dict], dict]]:
         if self._db is None:
             self._db = self._choose_db()  # type: ignore
         self._make_query()
@@ -1566,7 +1566,7 @@ class ValuesQuery(FieldSelectQuery):
         for val in await self:
             yield val
 
-    async def _execute(self) -> Union[List[dict], dict, None]:
+    async def _execute(self) -> Optional[List[dict], dict]:
         result = await self._db.execute_query_dict(str(self.query))
         columns = [
             val
